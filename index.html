@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V.T.C High School Admission Form</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+body{font-family:Arial,sans-serif;margin:10px;background:#f4f4f4;}
+h2,h3{text-align:center;}
+form{max-width:1000px;margin:auto;background:#fff;padding:20px;border-radius:8px;box-shadow:0 0 10px #aaa;}
+fieldset{margin-bottom:15px;border:1px solid #ccc;padding:15px;border-radius:5px;}
+legend{font-weight:bold;}
+label{display:block;margin-top:8px;}
+input,select,button{width:100%;padding:8px;margin-top:5px;box-sizing:border-box;}
+button{cursor:pointer;background:#007BFF;color:#fff;border:none;border-radius:5px;}
+button:hover{background:#0056b3;}
+img#photoPreview{display:block;width:100%;max-width:150px;height:auto;margin-top:10px;border:1px solid #ccc;}
+#cropContainer{max-width:100%;margin-top:10px;}
+.row{display:flex;flex-wrap:wrap;gap:10px;}
+.col{flex:1;}
+</style>
+</head>
+<body>
+
+<h2>V.T.C High School</h2>
+<h3>Admission Form</h3>
+
+<form id="admissionForm">
+
+  <!-- Passport Photo -->
+  <fieldset>
+    <legend>Upload Passport Photo (3.5×4.5 cm)</legend>
+    <input type="file" id="photoInput" accept="image/*">
+    <div id="cropContainer"><img id="photoPreview" src=""></div>
+    <button type="button" onclick="cropImage()">Crop Photo</button>
+  </fieldset>
+
+  <!-- Student Info -->
+  <fieldset>
+    <legend>Student Information</legend>
+    <div class="row">
+      <div class="col"><label>Name (English)</label><input type="text" id="nameEng"></div>
+      <div class="col"><label>Name (Hindi)</label><input type="text" id="nameHindi"></div>
+    </div>
+    <div class="row">
+      <div class="col"><label>DOB</label><input type="date" id="dob"></div>
+      <div class="col"><label>Aadhaar</label><input type="text" id="aadhaar" maxlength="12" oninput="validateAadhaar(this)"></div>
+    </div>
+    <div class="row">
+      <div class="col"><label>Gender</label>
+        <select id="gender"><option value="">Select</option><option>Male</option><option>Female</option><option>Trans</option></select>
+      </div>
+      <div class="col"><label>Previous Class</label><select id="prevClass"></select></div>
+    </div>
+  </fieldset>
+
+  <!-- Parent Details -->
+  <fieldset>
+    <legend>Parent's Details</legend>
+    <div class="row">
+      <div class="col"><label>Father</label><input id="fatherName"></div>
+      <div class="col"><label>Mother</label><input id="motherName"></div>
+    </div>
+    <div class="row">
+      <div class="col"><label>Guardian</label><input id="guardianName"></div>
+      <div class="col"><label>Mobile</label><input id="mobile" maxlength="10"></div>
+      <div class="col"><label>Alt Mobile</label><input id="altMobile" maxlength="10"></div>
+    </div>
+  </fieldset>
+
+  <!-- Address Details -->
+  <fieldset>
+    <legend>Address Details</legend>
+    <h4>Corresponding</h4>
+    <div class="row">
+      <div class="col"><input id="cVillage" placeholder="Village"></div>
+      <div class="col"><input id="cPO" placeholder="Post Office"></div>
+      <div class="col"><input id="cPS" placeholder="Police Station"></div>
+    </div>
+    <div class="row">
+      <div class="col"><input id="cDistrict" placeholder="District"></div>
+      <div class="col"><input id="cState" placeholder="State"></div>
+      <div class="col"><input id="cPin" placeholder="Pin Code"></div>
+    </div>
+    <h4>Permanent</h4>
+    <label><input type="checkbox" onclick="copyAddress(this)"> Same as Corresponding</label>
+    <div class="row">
+      <div class="col"><input id="pVillage" placeholder="Village"></div>
+      <div class="col"><input id="pPO" placeholder="Post Office"></div>
+      <div class="col"><input id="pPS" placeholder="Police Station"></div>
+    </div>
+    <div class="row">
+      <div class="col"><input id="pDistrict" placeholder="District"></div>
+      <div class="col"><input id="pState" placeholder="State"></div>
+      <div class="col"><input id="pPin" placeholder="Pin Code"></div>
+    </div>
+  </fieldset>
+
+  <!-- Other Info -->
+  <fieldset>
+    <legend>Other Info</legend>
+    <div class="row">
+      <div class="col"><label>Religion</label><input id="religion"></div>
+      <div class="col"><label>Caste</label><input id="caste"></div>
+      <div class="col"><label>Category</label>
+        <select id="category"><option>SC</option><option>ST</option><option>BC1</option><option>BC2</option><option>General</option></select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col"><label>Blood Group</label><input id="blood"></div>
+      <div class="col"><label>Height(cm)</label><input id="height"></div>
+      <div class="col"><label>Weight(kg)</label><input id="weight"></div>
+    </div>
+  </fieldset>
+
+  <!-- Office Work -->
+  <fieldset>
+    <legend>Office Work</legend>
+    <div class="row">
+      <div class="col"><label>Admission Date</label><input id="admissionDate"></div>
+      <div class="col"><label>Admission No.</label><input id="admissionNo"></div>
+    </div>
+    <div class="row">
+      <div class="col"><label>Roll No.</label><input id="rollNo"></div>
+      <div class="col"><label>Class Admitted</label><input id="classAdmitted"></div>
+    </div>
+  </fieldset>
+
+  <button type="button" onclick="printAdmissionForm()">Print Admission Form</button>
+  <button type="button" onclick="exportExcel()">Export Excel</button>
+  <button type="button" onclick="resetForm()">Add New Student</button>
+</form>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+<script>
+var cropper, croppedPhotoData='';
+var photoInput=document.getElementById('photoInput');
+var photoPreview=document.getElementById('photoPreview');
+
+photoInput.addEventListener('change',function(e){
+  var file=e.target.files[0];
+  if(file){
+    var reader=new FileReader();
+    reader.onload=function(ev){
+      photoPreview.src=ev.target.result;
+      if(cropper) cropper.destroy();
+      cropper=new Cropper(photoPreview,{aspectRatio:7/9,viewMode:1});
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+function cropImage(){
+  if(cropper){
+    croppedPhotoData=cropper.getCroppedCanvas({width:350,height:450}).toDataURL('image/png');
+    alert('Photo Cropped!');
+  }
+}
+
+function validateAadhaar(input){
+  input.value=input.value.replace(/\D/g,'');
+  if(input.value.length>12) input.value=input.value.slice(0,12);
+}
+
+function copyAddress(cb){
+  var fields=['Village','PO','PS','District','State','Pin'];
+  for(var i=0;i<fields.length;i++){
+    document.getElementById('p'+fields[i]).value = cb.checked ? document.getElementById('c'+fields[i]).value : '';
+  }
+}
+
+var prevClassSelect=document.getElementById('prevClass');
+for(var i=1;i<=12;i++){
+  var option=document.createElement('option');
+  option.value=i; option.text=i;
+  prevClassSelect.appendChild(option);
+}
+
+// --- PRINT FORM ---
+function printAdmissionForm(){
+  if(!croppedPhotoData){alert('Crop photo first!'); return;}
+  var data={};
+  document.querySelectorAll('#admissionForm input, #admissionForm select').forEach(el=>{
+    data[el.id]=el.value;
+  });
+  data.photo=croppedPhotoData;
+
+  const win=window.open('','_blank','width=900,height=900');
+  win.document.write(`<html><head><title>Admission Form</title>
+  <style>
+  body{font-family:Arial,sans-serif;padding:20px;}
+  h2,h3{text-align:center;margin:0;}
+  table{width:100%;border-collapse:collapse;margin-top:10px;}
+  table,th,td{border:1px solid #000;}
+  th,td{padding:6px;text-align:left;}
+  #photoBox{width:105px;height:135px;border:1px solid #000;}
+  .sign-table{margin-top:30px;width:100%;border:none;}
+  .sign-table td{border:none;text-align:center;padding-top:50px;}
+  </style></head><body>`);
+  win.document.write(`<h2>V.T.C High School</h2><h3>Admission Form</h3>`);
+
+  win.document.write(`<table>
+<tr><td rowspan="6" id="photoBox"><img src="${data.photo}" width="105" height="135"></td><th>Name (English)</th><td>${data.nameEng}</td></tr>
+<tr><th>Name (Hindi)</th><td>${data.nameHindi}</td></tr>
+<tr><th>DOB</th><td>${data.dob}</td></tr>
+<tr><th>Aadhaar</th><td>${data.aadhaar}</td></tr>
+<tr><th>Gender</th><td>${data.gender}</td></tr>
+<tr><th>Previous Class</th><td>${data.prevClass}</td></tr>
+</table>`);
+
+  win.document.write(`<h4>Parent Details</h4><table>
+  <tr><th>Father</th><td>${data.fatherName}</td><th>Mother</th><td>${data.motherName}</td></tr>
+  <tr><th>Guardian</th><td>${data.guardianName}</td><th>Mobile</th><td>${data.mobile}</td></tr>
+  </table>`);
+
+  win.document.write(`<h4>Address Details</h4><table>
+  <tr><th>Corresponding</th><td>${data.cVillage}, ${data.cPO}, ${data.cPS}, ${data.cDistrict}, ${data.cState}, ${data.cPin}</td></tr>
+  <tr><th>Permanent</th><td>${data.pVillage}, ${data.pPO}, ${data.pPS}, ${data.pDistrict}, ${data.pState}, ${data.pPin}</td></tr>
+  </table>`);
+
+  win.document.write(`<h4>Other Info</h4><table>
+  <tr><th>Religion</th><td>${data.religion}</td><th>Caste</th><td>${data.caste}</td></tr>
+  <tr><th>Category</th><td>${data.category}</td><th>Blood Group</th><td>${data.blood}</td></tr>
+  <tr><th>Height</th><td>${data.height}</td><th>Weight</th><td>${data.weight}</td></tr>
+  </table>`);
+
+  win.document.write(`<h4>Office Work</h4><table>
+  <tr><th>Admission Date</th><td>${data.admissionDate}</td><th>Admission No.</th><td>${data.admissionNo}</td></tr>
+  <tr><th>Roll No.</th><td>${data.rollNo}</td><th>Class Admitted</th><td>${data.classAdmitted}</td></tr>
+  </table>`);
+
+  win.document.write(`<table class="sign-table"><tr>
+  <td>Student Signature</td><td>Parent Signature</td><td>Principal Signature</td>
+  </tr></table>`);
+
+  win.document.write(`</body></html>`);
+  win.document.close();
+  win.print();
+}
+
+// --- EXPORT EXCEL ---
+function exportExcel(){
+    const data=[
+        ["Name(Eng)","Name(Hindi)","DOB","Aadhaar","Gender","Previous Class","Father","Mother","Guardian","Mobile","Alt Mobile","Corresponding Address","Permanent Address","Religion","Caste","Category","Blood","Height","Weight","Admission Date","Admission No","Roll No","Class Admitted"],
+        [
+            document.getElementById('nameEng').value.trim(),
+            document.getElementById('nameHindi').value.trim(),
+            document.getElementById('dob').value.trim(),
+            document.getElementById('aadhaar').value.trim(),
+            document.getElementById('gender').value.trim(),
+            document.getElementById('prevClass').value.trim(),
+            document.getElementById('fatherName').value.trim(),
+            document.getElementById('motherName').value.trim(),
+            document.getElementById('guardianName').value.trim(),
+            document.getElementById('mobile').value.trim(),
+            document.getElementById('altMobile').value.trim(),
+            `${document.getElementById('cVillage').value.trim()}, ${document.getElementById('cPO').value.trim()}, ${document.getElementById('cPS').value.trim()}, ${document.getElementById('cDistrict').value.trim()}, ${document.getElementById('cState').value.trim()}, ${document.getElementById('cPin').value.trim()}`,
+            `${document.getElementById('pVillage').value.trim()}, ${document.getElementById('pPO').value.trim()}, ${document.getElementById('pPS').value.trim()}, ${document.getElementById('pDistrict').value.trim()}, ${document.getElementById('pState').value.trim()}, ${document.getElementById('pPin').value.trim()}`,
+            document.getElementById('religion').value.trim(),
+            document.getElementById('caste').value.trim(),
+            document.getElementById('category').value.trim(),
+            document.getElementById('blood').value.trim(),
+            document.getElementById('height').value.trim(),
+            document.getElementById('weight').value.trim(),
+            document.getElementById('admissionDate').value.trim(),
+            document.getElementById('admissionNo').value.trim(),
+            document.getElementById('rollNo').value.trim(),
+            document.getElementById('classAdmitted').value.trim()
+        ]
+    ];
+    const ws=XLSX.utils.aoa_to_sheet(data);
+    const wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,ws,"AdmissionForm");
+    XLSX.writeFile(wb,"AdmissionForm.xlsx");
+}
+
+// --- RESET FORM ---
+function resetForm(){
+  document.getElementById('admissionForm').reset();
+  croppedPhotoData='';
+  photoPreview.src='';
+  if(cropper) cropper.destroy();
+}
+</script>
+</body>
+</html>
