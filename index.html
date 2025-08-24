@@ -1,39 +1,362 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
 <title>V.T.C High School Admission Form</title>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-body{font-family:Arial,sans-serif;margin:10px;background:#f4f4f4;}
-h2,h3{text-align:center;}
+body{font-family:Arial,sans-serif;margin:10px;background:#f4f4f4;text-transform:uppercase;}
 form{max-width:1000px;margin:auto;background:#fff;padding:20px;border-radius:8px;box-shadow:0 0 10px #aaa;}
 fieldset{margin-bottom:15px;border:1px solid #ccc;padding:15px;border-radius:5px;}
 legend{font-weight:bold;}
 label{display:block;margin-top:8px;}
-input,select,button{width:100%;padding:8px;margin-top:5px;box-sizing:border-box;}
+input,select,button{width:100%;padding:8px;margin-top:5px;box-sizing:border-box;text-transform:uppercase;}
 button{cursor:pointer;background:#007BFF;color:#fff;border:none;border-radius:5px;}
 button:hover{background:#0056b3;}
-img#photoPreview{display:block;width:100%;max-width:150px;height:auto;margin-top:10px;border:1px solid #ccc;}
+img#photoPreview, img#logoPreview{display:block;width:100%;max-width:150px;height:auto;margin-top:10px;border:1px solid #ccc;}
 #cropContainer{max-width:100%;margin-top:10px;}
 .row{display:flex;flex-wrap:wrap;gap:10px;}
 .col{flex:1;}
+.controls{display:flex;gap:10px;flex-wrap:wrap;}
+.controls button{flex:1;min-width:160px;}
+.school-header{display:flex;align-items:center;gap:15px;justify-content:center;margin-bottom:10px;}
+.school-header img{max-width:80px;max-height:80px;border:1px solid #ccc;}
+.school-name{font-size:24px;font-weight:bold;text-align:center;}
+.school-address{font-size:14px;text-align:center;}
+.admission-box{text-align:center;border:2px solid #000;padding:5px;margin:10px auto;width:250px;font-weight:bold;}
 </style>
 </head>
 <body>
 
-<h2>V.T.C High School</h2>
-<h3>Admission Form</h3>
+<!-- Logo and School Header -->
+<div class="school-header">
+  <input type="file" id="logoInput" accept="image/*" style="width:80px;">
+  <img id="logoPreview" src="" alt="School Logo">
+  <div>
+    <input type="text" id="schoolName" value="V.T.C HIGH SCHOOL" style="border:none;background:transparent;width:100%;font-size:24px;font-weight:bold;text-align:center;">
+    <input type="text" id="schoolAddress" value="ADD- PAUTA, HAZARIBAGH, CONTACT-8002458432" style="border:none;background:transparent;width:100%;font-size:14px;text-align:center;">
+  </div>
+</div>
 
-<form id="admissionForm">
+<div class="admission-box">ADMISSION FORM</div>
+
+<form id="admissionForm" onsubmit="return false;">
 
   <!-- Passport Photo -->
   <fieldset>
-    <legend>Upload Passport Photo (3.5×4.5 cm)</legend>
+    <legend>UPLOAD PASSPORT PHOTO (3.5×4.5 CM)</legend>
     <input type="file" id="photoInput" accept="image/*">
     <div id="cropContainer"><img id="photoPreview" src=""></div>
+    <div style="margin-top:10px;">
+      <button type="button" onclick="cropImage()">CROP PHOTO</button>
+    </div>
+  </fieldset>
+
+  <!-- Student Info -->
+  <fieldset>
+    <legend>STUDENT INFORMATION</legend>
+    <div class="row">
+      <div class="col"><label>NAME (ENGLISH)</label><input type="text" id="nameEng"></div>
+      <div class="col"><label>NAME (HINDI)</label><input type="text" id="nameHindi"></div>
+    </div>
+    <div class="row">
+      <div class="col"><label>DOB</label><input type="date" id="dob"></div>
+      <div class="col"><label>AADHAAR</label><input type="text" id="aadhaar" maxlength="12" oninput="validateAadhaar(this)"></div>
+    </div>
+    <div class="row">
+      <div class="col"><label>GENDER</label>
+        <select id="gender">
+          <option value="">SELECT</option>
+          <option>MALE</option>
+          <option>FEMALE</option>
+          <option>TRANS</option>
+        </select>
+      </div>
+      <div class="col"><label>PREVIOUS CLASS</label><select id="prevClass"></select></div>
+    </div>
+  </fieldset>
+
+  <!-- Parent Details -->
+  <fieldset>
+    <legend>PARENT'S DETAILS</legend>
+    <div class="row">
+      <div class="col"><label>FATHER</label><input id="fatherName"></div>
+      <div class="col"><label>MOTHER</label><input id="motherName"></div>
+    </div>
+    <div class="row">
+      <div class="col"><label>GUARDIAN</label><input id="guardianName"></div>
+      <div class="col"><label>MOBILE</label><input id="mobile" maxlength="10"></div>
+      <div class="col"><label>ALT MOBILE</label><input id="altMobile" maxlength="10"></div>
+    </div>
+  </fieldset>
+
+  <!-- Address Details -->
+  <fieldset>
+    <legend>ADDRESS DETAILS</legend>
+    <h4>CORRESPONDING</h4>
+    <div class="row">
+      <div class="col"><input id="cVillage" placeholder="VILLAGE"></div>
+      <div class="col"><input id="cPO" placeholder="POST OFFICE"></div>
+      <div class="col"><input id="cPS" placeholder="POLICE STATION"></div>
+    </div>
+    <div class="row">
+      <div class="col"><input id="cDistrict" placeholder="DISTRICT"></div>
+      <div class="col"><input id="cState" placeholder="STATE"></div>
+      <div class="col"><input id="cPin" placeholder="PIN CODE"></div>
+    </div>
+    <h4>PERMANENT</h4>
+    <label><input type="checkbox" onclick="copyAddress(this)"> SAME AS CORRESPONDING</label>
+    <div class="row">
+      <div class="col"><input id="pVillage" placeholder="VILLAGE"></div>
+      <div class="col"><input id="pPO" placeholder="POST OFFICE"></div>
+      <div class="col"><input id="pPS" placeholder="POLICE STATION"></div>
+    </div>
+    <div class="row">
+      <div class="col"><input id="pDistrict" placeholder="DISTRICT"></div>
+      <div class="col"><input id="pState" placeholder="STATE"></div>
+      <div class="col"><input id="pPin" placeholder="PIN CODE"></div>
+    </div>
+  </fieldset>
+
+  <!-- Other Info -->
+  <fieldset>
+    <legend>OTHER INFO</legend>
+    <div class="row">
+      <div class="col"><label>RELIGION</label><input id="religion"></div>
+      <div class="col"><label>CASTE</label><input id="caste"></div>
+      <div class="col"><label>CATEGORY</label>
+        <select id="category"><option value="">SELECT</option><option>SC</option><option>ST</option><option>BC1</option><option>BC2</option><option>GENERAL</option></select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col"><label>BLOOD GROUP</label>
+        <select id="blood">
+          <option value="">SELECT</option>
+          <option>A+</option><option>A-</option>
+          <option>B+</option><option>B-</option>
+          <option>AB+</option><option>AB-</option>
+          <option>O+</option><option>O-</option>
+        </select>
+      </div>
+      <div class="col"><label>HEIGHT (CM)</label><input id="height"></div>
+      <div class="col"><label>WEIGHT (KG)</label><input id="weight"></div>
+    </div>
+  </fieldset>
+
+  <!-- Office Work -->
+  <fieldset>
+    <legend>OFFICE WORK</legend>
+    <div class="row">
+      <div class="col"><label>ADMISSION DATE</label><input id="admissionDate" type="date"></div>
+      <div class="col"><label>ADMISSION NO.</label><input id="admissionNo"></div>
+    </div>
+    <div class="row">
+      <div class="col"><label>ROLL NO.</label><input id="rollNo"></div>
+      <div class="col"><label>CLASS ADMITTED</label><select id="classAdmitted"></select></div>
+    </div>
+  </fieldset>
+
+  <div class="controls">
+    <button type="button" onclick="printAdmissionForm()">PRINT ADMISSION FORM</button>
+    <button type="button" onclick="submitForm()">SUBMIT</button>
+  </div>
+
+</form>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script>
+var cropper, croppedPhotoData='';
+var photoInput=document.getElementById('photoInput');
+var photoPreview=document.getElementById('photoPreview');
+var logoInput=document.getElementById('logoInput');
+var logoPreview=document.getElementById('logoPreview');
+
+photoInput.addEventListener('change',function(e){
+  var file=e.target.files[0];
+  if(file){
+    var reader=new FileReader();
+    reader.onload=function(ev){
+      photoPreview.src=ev.target.result;
+      if(cropper) cropper.destroy();
+      cropper=new Cropper(photoPreview,{aspectRatio:7/9,viewMode:1});
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+logoInput.addEventListener('change',function(e){
+  var file=e.target.files[0];
+  if(file){
+    var reader=new FileReader();
+    reader.onload=function(ev){
+      logoPreview.src=ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+function cropImage(){
+  if(cropper){
+    croppedPhotoData=cropper.getCroppedCanvas({width:350,height:450}).toDataURL('image/png');
+    alert('PHOTO CROPPED!');
+  } else {
+    alert('PLEASE CHOOSE AN IMAGE FIRST.');
+  }
+}
+
+function validateAadhaar(input){
+  input.value=input.value.replace(/\D/g,'');
+  if(input.value.length>12) input.value=input.value.slice(0,12);
+}
+
+function copyAddress(cb){
+  var fields=['Village','PO','PS','District','State','Pin'];
+  for(var i=0;i<fields.length;i++){
+    document.getElementById('p'+fields[i]).value = cb.checked ? document.getElementById('c'+fields[i]).value : '';
+  }
+}
+
+var roman=['','I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
+var prevClassSelect=document.getElementById('prevClass');
+var classAdmitSelect=document.getElementById('classAdmitted');
+roman.forEach(c=>{
+  var o1=document.createElement('option'); o1.value=c; o1.text=c; prevClassSelect.appendChild(o1);
+  var o2=document.createElement('option'); o2.value=c; o2.text=c; classAdmitSelect.appendChild(o2);
+});
+
+function submitForm(){
+  alert("✅ FORM SUBMITTED!");
+}
+
+function escapeHtml(str){
+  if(!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function printAdmissionForm(){
+  if(!croppedPhotoData){ alert('CROP PHOTO FIRST!'); return; }
+
+  var data={};
+  document.querySelectorAll('#admissionForm input, #admissionForm select').forEach(el=>{
+    data[el.id]=el.value;
+  });
+  data.photo=croppedPhotoData;
+
+  var schoolName = escapeHtml(document.getElementById('schoolName').value);
+  var schoolAddress = escapeHtml(document.getElementById('schoolAddress').value);
+  
+  // Show logo only if uploaded
+  var logoHtml = '';
+  if(logoPreview.src && !logoPreview.src.includes('about:blank')){
+    logoHtml = `<img src="${logoPreview.src}" style="max-width:80px; max-height:80px; display:inline-block; vertical-align:middle;">`;
+  }
+
+  const win=window.open('','_blank','width=900,height=900');
+  win.document.write(`<html><head><title>Admission Form</title>
+  <style>
+  body { font-family:Arial; text-transform:uppercase; margin:20px; padding:0; }
+  .section { border:1px solid #000; padding:10px 12px; margin-bottom:20px; page-break-inside:avoid; border-radius:5px; }
+  table { width:100%; border-collapse:collapse; table-layout:fixed; word-wrap:break-word; }
+  table, th, td { border:1px solid #000; }
+  th, td { padding:6px; text-align:left; vertical-align:top; font-size:12px; }
+  #photoBox { width:80px; height:110px; border:1px solid #000; text-align:center; }
+  .sign-table { margin-top:20px; width:100%; border:none; font-size:11px; }
+  .sign-table td { border:none; text-align:center; padding-top:25px; }
+  h2,h3,h4 { margin:0 0 10px 0; padding:0; text-align:center; }
+  .admission-box { text-align:center; border:2px solid #000; padding:5px; margin:10px auto; width:250px; font-weight:bold; }
+  </style>
+  </head><body>`);
+
+  win.document.write(`<div style="text-align:center;">
+    ${logoHtml}
+    <h2>${schoolName}</h2>
+    <h3 style="font-size:14px;">${schoolAddress}</h3>
+    <div class="admission-box">ADMISSION FORM</div>
+  </div>`);
+
+  // The rest of print sections remain same as previous code
+  win.document.write(`<div class="section"><table>
+<tr><td rowspan="6" id="photoBox"><img src="${data.photo}" width="80" height="110"></td><th>NAME (ENGLISH)</th><td>${escapeHtml(data.nameEng)}</td></tr>
+<tr><th>NAME (HINDI)</th><td>${escapeHtml(data.nameHindi)}</td></tr>
+<tr><th>DOB</th><td>${escapeHtml(data.dob)}</td></tr>
+<tr><th>AADHAAR</th><td>${escapeHtml(data.aadhaar)}</td></tr>
+<tr><th>GENDER</th><td>${escapeHtml(data.gender)}</td></tr>
+<tr><th>PREVIOUS CLASS</th><td>${escapeHtml(data.prevClass)}</td></tr>
+</table></div>`);
+
+win.document.write(`<div class="section"><h4>PARENT DETAILS</h4><table>
+<tr><th>FATHER</th><td>${escapeHtml(data.fatherName)}</td><th>MOTHER</th><td>${escapeHtml(data.motherName)}</td></tr>
+<tr><th>GUARDIAN</th><td>${escapeHtml(data.guardianName)}</td><th>MOBILE</th><td>${escapeHtml(data.mobile)}</td></tr>
+</table></div>`);
+
+win.document.write(`<div class="section"><h4>ADDRESS DETAILS</h4><table>
+<tr><th>CORRESPONDING</th><td>${escapeHtml(document.getElementById('cVillage').value)}, ${escapeHtml(document.getElementById('cPO').value)}, ${escapeHtml(document.getElementById('cPS').value)}, ${escapeHtml(document.getElementById('cDistrict').value)}, ${escapeHtml(document.getElementById('cState').value)}, ${escapeHtml(document.getElementById('cPin').value)}</td></tr>
+<tr><th>PERMANENT</th><td>${escapeHtml(document.getElementById('pVillage').value)}, ${escapeHtml(document.getElementById('pPO').value)}, ${escapeHtml(document.getElementById('pPS').value)}, ${escapeHtml(document.getElementById('pDistrict').value)}, ${escapeHtml(document.getElementById('pState').value)}, ${escapeHtml(document.getElementById('pPin').value)}</td></tr>
+</table></div>`);
+
+win.document.write(`<div class="section"><h4>OTHER INFO</h4><table>
+<tr><th>RELIGION</th><td>${escapeHtml(document.getElementById('religion').value)}</td><th>CASTE</th><td>${escapeHtml(document.getElementById('caste').value)}</td></tr>
+<tr><th>CATEGORY</th><td>${escapeHtml(document.getElementById('category').value)}</td><th>BLOOD GROUP</th><td>${escapeHtml(document.getElementById('blood').value)}</td></tr>
+<tr><th>HEIGHT</th><td>${escapeHtml(document.getElementById('height').value)}</td><th>WEIGHT</th><td>${escapeHtml(document.getElementById('weight').value)}</td></tr>
+</table></div>`);
+
+win.document.write(`<div class="section"><h4>OFFICE WORK</h4><table>
+<tr><th>ADMISSION DATE</th><td>${escapeHtml(document.getElementById('admissionDate').value)}</td><th>ADMISSION NO.</th><td>${escapeHtml(document.getElementById('admissionNo').value)}</td></tr>
+<tr><th>ROLL NO.</th><td>${escapeHtml(document.getElementById('rollNo').value)}</td><th>CLASS ADMITTED</th><td>${escapeHtml(document.getElementById('classAdmitted').value)}</td></tr>
+</table></div>`);
+
+win.document.write(`<table class="sign-table"><tr>
+<td>STUDENT SIGNATURE</td><td>PARENT SIGNATURE</td><td>PRINCIPAL SIGNATURE</td>
+</tr></table>`);
+
+  win.document.write(`</body></html>`);
+  win.document.close();
+  win.print();
+}function submitForm(){
+  var data = {
+    nameEng: document.getElementById('nameEng').value,
+    nameHindi: document.getElementById('nameHindi').value,
+    dob: document.getElementById('dob').value,
+    aadhaar: document.getElementById('aadhaar').value,
+    gender: document.getElementById('gender').value,
+    prevClass: document.getElementById('prevClass').value,
+    fatherName: document.getElementById('fatherName').value,
+    motherName: document.getElementById('motherName').value,
+    guardianName: document.getElementById('guardianName').value,
+    mobile: document.getElementById('mobile').value,
+    altMobile: document.getElementById('altMobile').value,
+    corrAddress: `${document.getElementById('cVillage').value}, ${document.getElementById('cPO').value}, ${document.getElementById('cPS').value}, ${document.getElementById('cDistrict').value}, ${document.getElementById('cState').value}, ${document.getElementById('cPin').value}`,
+    permAddress: `${document.getElementById('pVillage').value}, ${document.getElementById('pPO').value}, ${document.getElementById('pPS').value}, ${document.getElementById('pDistrict').value}, ${document.getElementById('pState').value}, ${document.getElementById('pPin').value}`,
+    religion: document.getElementById('religion').value,
+    caste: document.getElementById('caste').value,
+    category: document.getElementById('category').value,
+    blood: document.getElementById('blood').value,
+    height: document.getElementById('height').value,
+    weight: document.getElementById('weight').value,
+    admissionDate: document.getElementById('admissionDate').value,
+    admissionNo: document.getElementById('admissionNo').value,
+    rollNo: document.getElementById('rollNo').value,
+    classAdmitted: document.getElementById('classAdmitted').value
+  };
+
+  fetch('https://script.google.com/macros/s/AKfycbxICmSM2nXNfNbj5xjV2jW8ja36pxGAQW8VLYKYEnl2e9ZLa0HNGxBIffVTu6iFlGmdKg/exec', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(res => {
+    if(res.status=='success') alert('✅ FORM SUBMITTED TO GOOGLE SHEET!');
+    else alert('❌ ERROR: ' + res.message);
+  })
+  .catch(err => alert('❌ ERROR: ' + err));
+}
+
+</script>
+
+</body>
+</html>
+
     <button type="button" onclick="cropImage()">Crop Photo</button>
   </fieldset>
 
