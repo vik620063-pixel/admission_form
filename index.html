@@ -191,10 +191,18 @@ logoInput.addEventListener('change',function(e){
     var reader=new FileReader();
     reader.onload=function(ev){
       logoPreview.src=ev.target.result;
+      localStorage.setItem("schoolLogo", ev.target.result); // save to localStorage
     };
     reader.readAsDataURL(file);
   }
 });
+
+// Load saved logo on page load
+window.addEventListener("load", () => {
+  const savedLogo = localStorage.getItem("schoolLogo");
+  if(savedLogo) logoPreview.src = savedLogo;
+});
+
 
 function cropImage(){
   if(cropper){
@@ -223,6 +231,13 @@ var classAdmitSelect=document.getElementById('classAdmitted');
 roman.forEach(c=>{
   var o1=document.createElement('option'); o1.value=c; o1.text=c; prevClassSelect.appendChild(o1);
   var o2=document.createElement('option'); o2.value=c; o2.text=c; classAdmitSelect.appendChild(o2);
+});
+// Auto-select next class
+prevClassSelect.addEventListener("change", function(){
+  let index = roman.indexOf(this.value);
+  if(index >= 0 && index < roman.length-1){
+    classAdmitSelect.value = roman[index+1];
+  }
 });
 
 function submitForm(){
@@ -345,12 +360,50 @@ win.document.write(`<table class="sign-table"><tr>
     body: JSON.stringify(data)
   })
   .then(res => res.json())
-  .then(res => {
-    if(res.status=='success') alert('✅ FORM SUBMITTED TO GOOGLE SHEET!');
-    else alert('❌ ERROR: ' + res.message);
-  })
+ .then(res => {
+  if(res.status=='success'){
+    alert('✅ FORM SUBMITTED TO GOOGLE SHEET!');
+
+    // Save admission no. before reset
+    const admNo = document.getElementById('admissionNo').value;
+    localStorage.setItem("admissionNo", admNo);
+
+   // Reset form
+document.getElementById("admissionForm").reset();
+
+// Clear cropped photo preview
+photoPreview.src = "";
+croppedPhotoData = "";
+if(cropper){
+  cropper.destroy();
+  cropper = null;
+}
+
+// Refill admission no.
+document.getElementById("admissionNo").value = admNo;
+
+// Refill logo (already handled by localStorage)
+const savedLogo = localStorage.getItem("schoolLogo");
+if(savedLogo) document.getElementById("logoPreview").src = savedLogo;
+
+
+  } else {
+    alert('❌ ERROR: ' + res.message);
+  }
+})
+
   .catch(err => alert('❌ ERROR: ' + err));
 }
+// Save admission no. whenever typed
+document.getElementById("admissionNo").addEventListener("input", function(){
+  localStorage.setItem("admissionNo", this.value);
+});
+
+// Load saved admission no. on page load
+window.addEventListener("load", () => {
+  const savedAdm = localStorage.getItem("admissionNo");
+  if(savedAdm) document.getElementById("admissionNo").value = savedAdm;
+});
 
 </script>
 
